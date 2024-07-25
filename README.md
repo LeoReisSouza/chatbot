@@ -1,4 +1,4 @@
-## 🤖 **ChatBot Interno: Análise de Dados com IA** 🤖
+# 🤖 **ChatBot Interno: Análise de Dados com IA** 🤖
 
 Bem-vindo ao **ChatData**, um projeto que combina inteligência artificial e análise de dados para oferecer uma consulta automatizada como nunca antes. Este é o resultado do nosso Trabalho de Conclusão de Curso (TCC), desenvolvido por **Alicia**, **Knupp** e **Leo**.
 
