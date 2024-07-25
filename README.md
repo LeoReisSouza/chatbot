@@ -1,6 +1,6 @@
-# 🤖 **ChatBot Interno: Consulta e Análise de Dados Automatizada com IA** 🤖
+# 🤖 **ChatBot Interno: Análise de Dados Automatizada com IA** 🤖
 
-Bem-vindo ao **ChatData**, um projeto inovador que combina inteligência artificial e análise de dados para oferecer uma experiência de consulta automatizada como nunca antes. Este é o resultado do nosso Trabalho de Conclusão de Curso (TCC), desenvolvido por **Leo**, **Knupp** e **Alicia**.
+Bem-vindo ao **ChatData**, um projeto que combina inteligência artificial e análise de dados para oferecer uma consulta automatizada como nunca antes. Este é o resultado do nosso Trabalho de Conclusão de Curso (TCC), desenvolvido por **Alicia**, **Knupp** e **Leo**.
 
 ---
 
@@ -21,6 +21,3 @@ Bem-vindo ao **ChatData**, um projeto inovador que combina inteligência artific
 2. **Instale as Dependências:**:
    ```bash
    npm install
-   
-
-
