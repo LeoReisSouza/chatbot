@@ -16,7 +16,7 @@ const LoginPage = () => {
                 fontSize="32px"
                 color="primary"
             >
-                MIDAS
+                ChatData
             </Typography>
         </Box>
 
@@ -28,9 +28,9 @@ const LoginPage = () => {
             backgroundColor={theme.palette.background.alt}
         >
             <Typography
-                fontWeight="500" variant="h5" sx={{ mb: "1.5rem" }}
+                variant="h5" sx={{ mb: "1.5rem" }}
             >
-                Bem-vindos a MIDAS, comece a tornar a lenda real, com o seu patrimônio!
+                Bem-vindos a ChatData, comece a tornar a lenda real, com o seu patrimônio!
             </Typography>
             <Form></Form>
         </Box>
