@@ -1,11 +1,11 @@
-from anthropic import APIError
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from app.api.routes import router as v1_router
+from anthropic import APIError
+from app.api.routes import router as api_router
 
 app = FastAPI()
 
-app.include_router(v1_router, prefix="/api")
+app.include_router(api_router, prefix="/api")
 
 @app.get("/")
 def read_root():
@@ -15,7 +15,7 @@ def read_root():
 async def api_error_handler(request: Request, exc: APIError):
     return JSONResponse(
         status_code=500,
-        content={"message": exc.message},
+        content={"message": str(exc)},  # Use str(exc) to ensure message is string
     )
 
 if __name__ == "__main__":
