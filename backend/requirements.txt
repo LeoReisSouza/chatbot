@@ -3,3 +3,4 @@ config
 fastapi
 uvicorn
 pydantic
+pymongo
