@@ -5,10 +5,11 @@ from app.domain.models.user import User
 
 router = APIRouter()
 
+router.include_router(auth_router, prefix="/auth")
+
 @router.post("/chat", response_model=Conversation)
-def chat_with_bot(user_message: str, user: User = Depends()):
+def chat_with_bot_endpoint(user_message: str, user: User = Depends()):
     """
     Endpoint para enviar uma mensagem ao chatbot e obter a resposta.
     """
-    conversation = send_message(user_message, user)
-    return conversation
+    return chat_with_bot_controller(user_message, user)
