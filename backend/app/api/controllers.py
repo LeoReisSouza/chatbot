@@ -1,11 +1,14 @@
-from app.service.ConversationService import ConversationService
+from app.services.auth_service import authenticate_user, register_user
+from app.services.chatbot_service import send_message
+from app.domain.models.auth import UserCreate, UserLogin, Token
 from app.domain.models.conversation import Conversation
 from app.domain.models.user import User
 
-def send_message(user_message: str, user: User) -> Conversation:
-    """
-    Processa a mensagem do usuário e retorna a conversa completa.
-    """
-    conversation_service = ConversationService()
-    response = conversation_service.process_message(user_message, user)
-    return response
+def register_user_controller(user: UserCreate) -> Token:
+    return register_user(user)
+
+def login_user_controller(user: UserLogin) -> Token:
+    return authenticate_user(user)
+
+def chat_with_bot_controller(user_message: str, user: User) -> Conversation:
+    return send_message(user_message, user)
