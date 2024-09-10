@@ -1,7 +1,7 @@
 from pydantic import BaseModel
-from app.domain.models.user import User
+from .UserCreate import UserCreate
 
 class Conversation(BaseModel):
-    user: User
+    user: UserCreate
     user_message: str
     bot_response: str
