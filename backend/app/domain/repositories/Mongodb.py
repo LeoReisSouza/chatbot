@@ -1,7 +1,8 @@
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from typing import List, Dict, Any
-import pymongo
+
+from backend.app.infrastructure.RepositoryInterface import RepositoryInterface
 
 class MongoDBRepository(RepositoryInterface):
     def __init__(self, uri: str, database_name: str):
