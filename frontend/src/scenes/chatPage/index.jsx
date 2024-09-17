@@ -3,6 +3,8 @@ import { Box } from '@mui/material';
 import { useSpring } from '@react-spring/web'; 
 import CardSection from '../../components/CardSection';
 import StartButton from '../../components/StartButton';
+import Header from '../../components/Header';
+import Title from '../../components/Title'; 
 
 const ChatPage = () => {
   const [showChatBotScreen, setShowChatBotScreen] = useState(false);
@@ -41,12 +43,16 @@ const ChatPage = () => {
         <div>ChatBot Screen</div>
       ) : (
         <Box>
-          <CardSection
-            animationPropsTop={animationPropsTop}
-            animationPropsMiddle={animationPropsMiddle}
-            animationPropsBottom={animationPropsBottom}
-          />
-          <StartButton onClick={handlePress} />
+          <Header />
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '2rem' }}>
+            <Title /> 
+            <CardSection
+              animationPropsTop={animationPropsTop}
+              animationPropsMiddle={animationPropsMiddle}
+              animationPropsBottom={animationPropsBottom}
+            />
+            <StartButton onClick={handlePress} /> 
+          </Box>
         </Box>
       )}
     </>

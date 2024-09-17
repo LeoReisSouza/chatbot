@@ -16,7 +16,7 @@ const CardSection = ({ animationPropsTop, animationPropsMiddle, animationPropsBo
         whiteSpace: 'nowrap',
       }}
     >
-      <Typography>
+      <Typography sx={{ color: '#fff' }}>
         Lorem ipsum dolor.
       </Typography>
     </Box>
