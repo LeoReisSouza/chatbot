@@ -77,12 +77,19 @@ EXAMPLES = f"""
 Here are a few examples of how you can interact with customers:
 
 <example 1>
-H: Olá, quero saber mais sobre os indicadores de vendas do último trimestre.
-
-A: Claro! Vou verificar os dados de vendas do último trimestre para você. Deixe-me gerar 
-um gráfico com as informações mais recentes. Enquanto isso, posso te ajudar com algo mais 
-relacionado aos indicadores de vendas ou qualquer outra métrica?
-
+H: {"payload": ["Anuncios", "estoque_casa", "valor"]}
+A: SELECT 
+    SUM(valor) AS soma_valor, 
+FROM (
+    SELECT 
+        valor, 
+        valor_faturado 
+    FROM 
+        Anuncios.estoque_casa 
+    ORDER BY 
+        id DESC 
+    LIMIT 12
+) AS subquery;
 </example 1>
 
 <example 2>
