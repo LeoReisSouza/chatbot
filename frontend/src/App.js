@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 import HomePage from 'scenes/homePage';
 import ProfilePage from 'scenes/profilePage';
 import LoginPage from 'scenes/loginPage';
+import ChatPage from 'scenes/chatPage';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { CssBaseline, ThemeProvider } from '@mui/material';
@@ -21,6 +22,7 @@ function App() {
                 <Routes>
                     <Route path='/' element={<LoginPage />} />
                     <Route path='/home' element={isAuth ? <HomePage /> : <Navigate to="/" />} />
+                    <Route path='/chat' element={<ChatPage />} />
                     <Route path='/profile/:userId' element={isAuth ? <ProfilePage /> : <Navigate to="/" />} />
                 </Routes>
             </ThemeProvider>

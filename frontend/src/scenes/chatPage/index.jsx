@@ -5,6 +5,7 @@ import CardSection from '../../components/CardSection';
 import StartButton from '../../components/StartButton';
 import Header from '../../components/Header';
 import Title from '../../components/Title'; 
+import ChatBot from '../chatBot';
 
 const ChatPage = () => {
   const [showChatBotScreen, setShowChatBotScreen] = useState(false);
@@ -40,7 +41,7 @@ const ChatPage = () => {
   return (
     <>
       {showChatBotScreen ? (
-        <div>ChatBot Screen</div>
+        <ChatBot /> 
       ) : (
         <Box>
           <Header />
@@ -51,7 +52,7 @@ const ChatPage = () => {
               animationPropsMiddle={animationPropsMiddle}
               animationPropsBottom={animationPropsBottom}
             />
-            <StartButton onClick={handlePress} /> 
+            <StartButton onClick={handlePress} />
           </Box>
         </Box>
       )}
