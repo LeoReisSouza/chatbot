@@ -3,8 +3,9 @@ config
 fastapi
 uvicorn
 pydantic
-pymongo
 mongoengine
 bcrypt
 jwt
 jose
+python-dotenv
+psycopg2
