@@ -15,7 +15,7 @@ def read_root():
 async def api_error_handler(request: Request, exc: APIError):
     return JSONResponse(
         status_code=500,
-        content={"message": str(exc)},  # Use str(exc) to ensure message is string
+        content={"message": str(exc)},
     )
 
 if __name__ == "__main__":
