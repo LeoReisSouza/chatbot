@@ -6,7 +6,7 @@ from backend.app.domain.models.UserLogin import UserLogin
 from backend.app.domain.repositories.Mongodb import MongoDBRepository
 from backend.app.domain.repositories.User import UserService
 from backend.app.infrastructure.RepositoryInterface import RepositoryInterface
-from backend.app.service.PasswordService import PasswordService
+from backend.app.domain.service.PasswordService import PasswordService
 import jwt
 import datetime
 
@@ -55,7 +55,7 @@ async def login(user: UserLogin, repo: RepositoryInterface = Depends(get_reposit
             algorithm='HS256'
         )
 
-        del user_data['senha']  # Remove password from response
+        del user_data['senha']
         return {"token": token, "user": user_data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

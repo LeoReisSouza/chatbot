@@ -1,12 +1,12 @@
 from typing import Dict, List
 from fastapi import APIRouter, Depends, HTTPException, Query
-from app.api.controllers import chat_with_bot_controller, send_message
 from backend.app.api import auth
 from backend.app.api.middleware import verify_token
 from backend.app.domain.models.Conversation import Conversation
 from backend.app.domain.models.TokenAuth import TokenData
 from backend.app.domain.models.UserLogin import UserLogin
 from backend.app.domain.repositories.Mongodb import MongoDBRepository
+from backend.app.domain.service.ChatBotService import ChatBot
 
 router = APIRouter()
 
@@ -17,7 +17,7 @@ def chat_with_bot_endpoint(user_message: str, user: UserLogin = Depends(), token
     """
     Endpoint para enviar uma mensagem ao chatbot e obter a resposta.
     """
-    return chat_with_bot_controller(user_message, user)
+    return ChatBot.process_user_input(user_message, user)
 
 
 @router.get("/data_dictionaries", response_model=List[Dict])
