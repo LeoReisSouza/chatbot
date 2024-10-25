@@ -1,0 +1,12 @@
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .chat-content {
+    flex-grow: 1;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+  
