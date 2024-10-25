@@ -1,41 +1,104 @@
-from typing import Dict, List
-from fastapi import APIRouter, Depends, HTTPException, Query
-from backend.app.api import auth
-from backend.app.api.middleware import verify_token
-from backend.app.domain.models.Conversation import Conversation
-from backend.app.domain.models.TokenAuth import TokenData
-from backend.app.domain.models.UserLogin import UserLogin
-from backend.app.domain.repositories.Mongodb import MongoDBRepository
-from backend.app.domain.service.ChatBotService import ChatBot
+import os
+from fastapi import APIRouter, Body, HTTPException, Depends
+from app.domain.service.ChatBotService import ChatBot
+from backend.app.domain.models.database_request import SchemaRequest, TableRequest
+from backend.app.domain.service.DatabaseService import Database
+from psycopg2 import OperationalError
 
+# Inicialize o router
 router = APIRouter()
 
-router.include_router(auth, prefix="/auth")
+# Carrega variáveis de ambiente para conexão com o banco de dados
+db_name = os.getenv("DB_NAME")
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_host = os.getenv("DB_HOST")
+db_port = os.getenv("DB_PORT")
 
-@router.post("/chat", response_model=Conversation)
-def chat_with_bot_endpoint(user_message: str, user: UserLogin = Depends(), token_data: TokenData = Depends(verify_token)):
+@router.post("/chat")
+def chat_with_bot_endpoint(user_message: str = Body(..., embed=True)):
     """
     Endpoint para enviar uma mensagem ao chatbot e obter a resposta.
-    """
-    return ChatBot.process_user_input(user_message, user)
+    
+    Args:
+        user_message (str): Mensagem do usuário para o chatbot.
 
-
-@router.get("/data_dictionaries", response_model=List[Dict])
-def get_data_dictionaries(
-    button_value: str = Query(..., description="Valor enviado pelo botão do frontend"), 
-    repository: MongoDBRepository = Depends(),
-    token_data: TokenData = Depends(verify_token)
-):
+    Returns:
+        dict: Resposta do chatbot.
     """
-    Endpoint para obter os dados dos dicionários de dados com base no valor do botão.
+    session_state = {"content": []}
+
+    try:
+        chatbot = ChatBot(session_state=session_state)
+        return chatbot.process_user_input(user_message)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao processar a mensagem do chatbot: {e}")
+
+def get_database_client():
+    """
+    Cria uma instância do cliente de banco de dados.
+
+    Returns:
+        Database: Instância configurada do cliente de banco de dados.
+    
+    Raises:
+        HTTPException: Caso ocorra falha na conexão.
     """
     try:
-        data_dictionaries = repository.get_collection(button_value)
-        
-        if not data_dictionaries:
-            raise HTTPException(status_code=404, detail="No data dictionaries found for this button value.")
-        
-        return data_dictionaries
-
+        return Database(
+            host=os.getenv("DB_HOST"),
+            port=os.getenv("DB_PORT"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            name=os.getenv("DB_NAME")
+        )
+    except OperationalError as e:
+        raise HTTPException(status_code=500, detail="Erro ao conectar com o banco de dados.")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Erro inesperado ao conectar ao banco de dados: {e}")
+
+
+@router.get("/databases")
+def get_databases_endpoint(database_client: Database = Depends(get_database_client)):
+    """
+    Endpoint para obter a lista de databases no servidor PostgreSQL.
+
+    Returns:
+        list: Lista de nomes das databases.
+    """
+    try:
+        return database_client.get_databases()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao obter databases: {e}")
+
+@router.post("/schemas")
+def get_schemas_endpoint(request: SchemaRequest, database_client: Database = Depends(get_database_client)):
+    """
+    Endpoint para obter a lista de schemas em uma database especificada.
+
+    Args:
+        request (SchemaRequest): Requisição contendo o nome da database.
+
+    Returns:
+        list: Lista de nomes dos schemas.
+    """
+    try:
+        return database_client.get_schemas(request.dbname)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao obter schemas: {e}")
+
+@router.post("/tables")
+def get_tables_endpoint(request: TableRequest, database_client: Database = Depends(get_database_client)):
+    """
+    Endpoint para obter a lista de tabelas em um schema específico dentro de uma database especificada.
+
+    Args:
+        request (TableRequest): Requisição contendo o nome da database e do schema.
+
+    Returns:
+        list: Lista de nomes das tabelas.
+    """
+    try:
+        return database_client.get_tables(request.dbname, request.schema)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao obter tabelas: {e}")
