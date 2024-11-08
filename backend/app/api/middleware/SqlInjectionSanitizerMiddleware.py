@@ -1,7 +1,7 @@
 from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from backend.app.shared.utils.sanitizer_sql_injection import SQLSanitizer
+from app.shared.utils.sanitizer_sql_injection import SQLSanitizer
 
 class SQLInjectionSanitizerMiddleware(BaseHTTPMiddleware):
     """
