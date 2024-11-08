@@ -1,91 +1,229 @@
-import React, { useState } from 'react';
-import Header from '../../components/Header';
+import React, { useState, useEffect } from 'react';
 import BotMessage from '../../components/BotMessage';
-import UserOptions from '../../components/UserOptions';
+import UserMessage from '../../components/UserMessage';
 import Footer from '../../components/Footer';
 import { Box, TextField, Button } from '@mui/material';
+import DOMPurify from 'dompurify';
 import '../../style/chatbot.css';
-
+import Header from 'components/Header';
+import ChartComponent from 'components/Chart';
 
 const ChatBot = () => {
-  const initialBotMessages = ["De qual área pertence o dado que deseja?"];
-  const initialUserOptions = [
-    { label: 'Sua Empresa', value: 'empresa' },
-    { label: 'Time Financeiro', value: 'financeiro' },
-    { label: 'Time Marketing', value: 'marketing' },
-    { label: 'Time Comercial', value: 'comercial' },
-  ];
+  const [messages, setMessages] = useState([
+    { sender: 'bot', text: "Olá, eu sou a Eva, seu BOT. E quero te ajudar a coletar o dado que deseja." }
+  ]);
 
-  const [botMessages, setBotMessages] = useState(initialBotMessages);
-  const [userOptions, setUserOptions] = useState(initialUserOptions);
+  const [userOptions, setUserOptions] = useState([]);
   const [clickCount, setClickCount] = useState(0);
   const [showTextInput, setShowTextInput] = useState(false);
+  const [chartData, setChartData] = useState("");
   const [userTextInput, setUserTextInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [startClicked, setStartClicked] = useState(false);
 
-  const updateBotMessages = (newMessage) => {
-    setBotMessages(prevMessages => [...prevMessages, newMessage]);
+  useEffect(() => {
+    handleStart()
+  }, [])
+  
+  const addMessage = (sender, text) => {
+    setMessages(prevMessages => [...prevMessages, { sender, text }]);
   };
 
-  const updateUserOptions = (optionValue) => {
-    if (optionValue === 'empresa') {
-      setUserOptions([
-        { label: 'Estoque', value: 'estoque' },
-        { label: 'Faturamento', value: 'faturamento' },
-        { label: 'Audiência', value: 'audiencia' },
-        { label: 'Voltar', value: 'voltar' },
-      ]);
+  const handleOptionSelect = async (optionValue) => {
+    addMessage('user', optionValue);
+    addMessage('bot', `Você selecionou: ${optionValue}`);
+
+    if (clickCount === 0) {
+      await fetchSchemas(optionValue);
+    } else if (clickCount === 1) {
+      await fetchTables(messages[1]?.text, optionValue);
+    } else if (clickCount === 2) {
+      setShowTextInput(true);
     }
+
+    setClickCount((prevCount) => prevCount + 1);
   };
 
-  const handleOptionSelect = (optionValue) => {
-    updateBotMessages(`Entendi, você selecionou ${optionValue}.`);
-    updateUserOptions(optionValue);
-    
-    setClickCount(prevCount => {
-      const newCount = prevCount + 1;
-      if (newCount === 3) setShowTextInput(true);
-      return newCount;
-    });
+  const handleStart = async () => {
+    addMessage('bot', "Vamos iniciar a nossa conversa?");
+    setStartClicked(true);
+    await fetchDatabases();
   };
 
-  const handleTextInputChange = (e) => setUserTextInput(e.target.value);
+  const handleTextInputSubmit = async () => {
+    const sanitizedInput = DOMPurify.sanitize(userTextInput);
+    if (!sanitizedInput.trim()) {
+      addMessage('bot', "Por favor, digite uma pergunta antes de enviar.");
+      return;
+    }
+    console.log(messages)
+    addMessage('user', sanitizedInput);
+    await callApi(messages[3]?.text, messages[5]?.text, messages[7]?.text, sanitizedInput);
 
-  const handleTextInputSubmit = () => {
-    updateBotMessages(`Você digitou: ${userTextInput}`);
     setShowTextInput(false);
     setUserTextInput("");
   };
 
-  return (
-    <Box className="chat-container">
-      <Header />
-      <Box className="chat-content">
-        {botMessages.map((msg, index) => (
-          <BotMessage key={index} message={msg} />
+  const UserOptions = ({ options, onSelect }) => {
+    const chunkArray = (array, chunkSize) => {
+      const result = [];
+      for (let i = 0; i < array.length; i += chunkSize) {
+        result.push(array.slice(i, i + chunkSize));
+      }
+      return result;
+    };
+
+    const buttonGroups = chunkArray(options, 6);
+    return (
+      <>
+        {buttonGroups.map((group, groupIndex) => (
+          <Box key={groupIndex} display="flex" justifyContent="flex-start" alignItems="center" mb={1}>
+            {group.map((option, index) => (
+              <Button
+                key={index}
+                variant="contained"
+                color="primary"
+                onClick={() => onSelect(option.value)}
+                sx={{ margin: '5px', textTransform: 'none' }}
+                disabled={loading}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </Box>
         ))}
-        <UserOptions options={userOptions} onSelect={handleOptionSelect} />
+      </>
+    );
+  };
+
+  const fetchDatabases = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/databases');
+      if (!response.ok) throw new Error("Erro ao buscar bases de dados");
+
+      const data = await response.json();
+      if (!Array.isArray(data)) throw new Error("Formato inesperado da resposta ao buscar bases de dados");
+
+      const options = data.map(dbname => ({ label: dbname, value: dbname }));
+      setUserOptions(options);
+    } catch (error) {
+      console.error("Detalhes do erro:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSchemas = async (dbname) => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/schemas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dbname }),
+      });
+      if (!response.ok) throw new Error(`Erro ao buscar schemas para a base ${dbname}`);
+
+      const data = await response.json();
+      if (!Array.isArray(data)) throw new Error(`Formato inesperado da resposta para schemas da base ${dbname}`);
+
+      const options = data.map(schema => ({ label: schema, value: schema }));
+      setUserOptions(options);
+    } catch (error) {
+      console.error("Detalhes do erro:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTables = async (dbname, schema) => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/tables', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dbname, schema }),
+      });
+      if (!response.ok) throw new Error(`Erro ao buscar tabelas para o schema ${schema}`);
+
+      const data = await response.json();
+
+      const options = data.map(table => ({ label: table, value: table }));
+      setUserOptions(options);
+    } catch (error) {
+      console.error("Detalhes do erro:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const callApi = async (dbname, schema, table, question) => {
+    try {
+      const formattedInput = `${dbname}, ${schema}, ${table}, ${question}`;
+      const response = await fetch('http://127.0.0.1:8000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_message: formattedInput }),
+      });
+      if (!response.ok) throw new Error('Erro ao chamar a API do chatbot.');
+
+      const data = await response.json();
+      setClickCount(0);
+      setChartData(data)
+      await fetchDatabases();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <>
+      <Header />
+      <Box display="flex" flexDirection="column" height="75vh">
+        <Box className="chat-content" justifyContent="flex-start" alignItems="center" mb={1}>
+          {messages.map((msg, index) =>
+            msg.sender === 'bot' ? (
+              <BotMessage key={index} message={msg.text} />
+            ) : (
+              <Box key={index} display="flex" flexDirection="row-reverse" alignItems="center" mb={1}>
+                <UserMessage message={msg.text} />
+              </Box>
+            )
+          )}
+        </Box>
+      </Box>
+
         {showTextInput && (
-          <Box mt={2}>
+          <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
             <TextField
-              label="Digite sua mensagem"
+              label="Digite sua pergunta"
               variant="outlined"
-              fullWidth
               value={userTextInput}
-              onChange={handleTextInputChange}
+              onChange={(e) => setUserTextInput(e.target.value)}
+              fullWidth
             />
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={handleTextInputSubmit} 
-              sx={{ mt: 2 }}
+            <Button
+              onClick={handleTextInputSubmit}
+              variant="contained"
+              color="primary"
+              sx={{ marginLeft: '10px' }}
+              disabled={loading}
             >
               Enviar
             </Button>
           </Box>
         )}
-      </Box>
+
+      {(!showTextInput && chartData.length > 0) ? (
+        <ChartComponent data={chartData} />
+      ) : (
+        <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+          <UserOptions options={userOptions} onSelect={handleOptionSelect} />
+        </Box>
+      )}
+      
       <Footer />
-    </Box>
+    </>
   );
 };
 
