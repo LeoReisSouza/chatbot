@@ -1,8 +1,8 @@
 import os
 from fastapi import APIRouter, Body, HTTPException, Depends
 from app.domain.service.ChatBotService import ChatBot
-from backend.app.domain.models.database_request import SchemaRequest, TableRequest
-from backend.app.domain.service.DatabaseService import Database
+from app.domain.models.database_request import SchemaRequest, TableRequest
+from app.domain.service.DatabaseService import Database
 from psycopg2 import OperationalError
 
 # Inicialize o router
@@ -99,6 +99,6 @@ def get_tables_endpoint(request: TableRequest, database_client: Database = Depen
         list: Lista de nomes das tabelas.
     """
     try:
-        return database_client.get_tables(request.dbname, request.schema)
+        return database_client.get_tables(request.dbname, request.schema_name)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao obter tabelas: {e}")
