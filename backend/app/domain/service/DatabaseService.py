@@ -14,7 +14,7 @@ class Database:
             port (int): Porta do servidor PostgreSQL.
             user (str): Usuário do banco de dados.
             password (str): Senha do banco de dados.
-            name (str): Nome do banco de dados
+            name (str): Nome do banco de dados.
         """
         self.host = host
         self.port = port
@@ -22,12 +22,9 @@ class Database:
         self.password = password
         self.name = name
 
-    def _connect(self):
+    def _connect(self, dbname=None):
         """
         Estabelece uma conexão com o banco de dados PostgreSQL.
-
-        Args:
-            dbname (str): Nome da database a ser conectada.
         
         Returns:
             connection: Conexão ao banco de dados PostgreSQL.
@@ -37,7 +34,7 @@ class Database:
             port=self.port,
             user=self.user,
             password=self.password,
-            dbname=self.name
+            dbname=dbname or self.name
         )
 
     def get_databases(self):
@@ -55,36 +52,38 @@ class Database:
         connection.close()
         return databases
 
-    def get_schemas(self, dbname):
+    def get_schemas(self, dbname: str):
         """
-        Retorna a lista de schemas na database especificada.
+        Retorna a lista de schemas na database especificada por `dbname`.
+        """
+        try:
+            connection = self._connect(dbname)
+            cursor = connection.cursor()
+            cursor.execute("""
+                SELECT schema_name 
+                FROM information_schema.schemata
+                WHERE schema_name NOT IN ('pg_catalog', 'information_schema');
+            """)
+            schemas = [row[0] for row in cursor.fetchall()]
+            print(f"Schemas encontrados: {schemas}")
+            cursor.close()
+            connection.close()
+            return schemas
+        except Exception as e:
+            print(f"Erro ao obter schemas: {e}")
+            raise
+
+    def get_tables(self, db_name, schema):
+        """
+        Retorna a lista de tabelas no schema especificado dentro da database configurada.
 
         Args:
-            dbname (str): Nome da database para listar os schemas.
-        
-        Returns:
-            list: Lista de nomes dos schemas.
-        """
-        connection = self._connect(dbname=dbname)
-        cursor = connection.cursor()
-        cursor.execute("SELECT schema_name FROM information_schema.schemata;")
-        schemas = [row[0] for row in cursor.fetchall()]
-        cursor.close()
-        connection.close()
-        return schemas
-
-    def get_tables(self, dbname, schema):
-        """
-        Retorna a lista de tabelas no schema especificado dentro da database especificada.
-
-        Args:
-            dbname (str): Nome da database para listar as tabelas.
             schema (str): Nome do schema para listar as tabelas.
 
         Returns:
             list: Lista de nomes das tabelas.
         """
-        connection = self._connect(dbname=dbname)
+        connection = self._connect()
         cursor = connection.cursor()
         cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = %s;", (schema,))
         tables = [row[0] for row in cursor.fetchall()]
