@@ -1,5 +1,5 @@
 from typing import Type
-from backend.app.infrastructure.RepositoryInterface import RepositoryInterface
+from app.infrastructure.RepositoryInterface import RepositoryInterface
 
 class UserService:
     def __init__(self, repo: RepositoryInterface):
