@@ -55,9 +55,9 @@ const ChatBot = () => {
     if (clickCount === 1) {
       await fetchDatabases(); 
     } else if (clickCount === 2) {
-      await fetchSchemas(messages[1]?.text); 
+      await fetchSchemas(messages[3]?.text); 
     } else if (clickCount === 3) {
-      await fetchTables(messages[1]?.text, messages[3]?.text);
+      await fetchTables(messages[3]?.text, messages[5]?.text);
     }
     console.log(clickCount)
     console.log(messages)
@@ -176,6 +176,15 @@ const ChatBot = () => {
     }
   };
 
+  const restartConversation = async () => {
+    setClickCount(0); 
+    setUserOptions([]);
+    setStartClicked(false); 
+
+    await fetchDatabases();
+    addMessage('bot', "Vamos começar novamente. Selecione uma base de dados.");
+  };
+
   const callApi = async (dbname, schema, table, question) => {
     try {
       const formattedInput = `${dbname}, ${schema}, ${table}, ${question}`;
@@ -184,11 +193,14 @@ const ChatBot = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_message: formattedInput }),
       });
+  
       if (!response.ok) throw new Error('Erro ao chamar a API do chatbot.');
-
+  
       const data = await response.json();
-      setChartData(data)
-      await fetchDatabases();
+      setChartData(data); 
+      addMessage('bot', "Aqui está o gráfico com as informações solicitadas:"); 
+
+      await restartConversation();
     } catch (error) {
       console.error(error);
     }
@@ -207,6 +219,9 @@ const ChatBot = () => {
                 <UserMessage message={msg.text} />
               </Box>
             )
+          )}
+          {!showTextInput && chartData.length > 0 && (
+            <ChartComponent data={chartData} />
           )}
         </Box>
       </Box>
@@ -249,9 +264,6 @@ const ChatBot = () => {
         </Box>
       )}
 
-      {!showTextInput && chartData.length > 0 && (
-        <ChartComponent data={chartData} />
-      )}
       <Footer />
     </>
   );
