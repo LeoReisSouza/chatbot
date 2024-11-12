@@ -41,7 +41,26 @@ const ChatBot = () => {
       setShowTextInput(true);
     }
 
+    console.log(clickCount)
+    console.log(messages)
+
     setClickCount((prevCount) => prevCount + 1);
+  };
+
+  const handleGoBack = async () => {
+    setMessages((prevMessages) => prevMessages.slice(0, -2));
+    
+    setClickCount((prevCount) => prevCount - 1);
+  
+    if (clickCount === 1) {
+      await fetchDatabases(); 
+    } else if (clickCount === 2) {
+      await fetchSchemas(messages[1]?.text); 
+    } else if (clickCount === 3) {
+      await fetchTables(messages[1]?.text, messages[3]?.text);
+    }
+    console.log(clickCount)
+    console.log(messages)
   };
 
   const handleStart = async () => {
@@ -168,7 +187,6 @@ const ChatBot = () => {
       if (!response.ok) throw new Error('Erro ao chamar a API do chatbot.');
 
       const data = await response.json();
-      setClickCount(0);
       setChartData(data)
       await fetchDatabases();
     } catch (error) {
@@ -214,14 +232,26 @@ const ChatBot = () => {
           </Box>
         )}
 
-      {(!showTextInput && chartData.length > 0) ? (
-        <ChartComponent data={chartData} />
-      ) : (
+      {(!showTextInput && chartData.length === 0) && (
         <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
           <UserOptions options={userOptions} onSelect={handleOptionSelect} />
+          {clickCount > 0 && (
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleGoBack}
+              sx={{ marginLeft: '10px' }}
+              disabled={loading}
+            >
+              Voltar
+            </Button>
+          )}
         </Box>
       )}
-      
+
+      {!showTextInput && chartData.length > 0 && (
+        <ChartComponent data={chartData} />
+      )}
       <Footer />
     </>
   );
