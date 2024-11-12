@@ -3,13 +3,20 @@ import { ResponsiveBar } from '@nivo/bar';
 const ChartComponent = ({ data }) => {
   if (!data || data.length === 0) return null;
 
-  const sampleItem = data[0];
-  const indexBy = Object.keys(sampleItem).find(key => typeof sampleItem[key] === 'string');
-  const keys = Object.keys(sampleItem).filter(key => typeof sampleItem[key] === 'number');
+  const formattedData = data.map((item, index) => ({
+    category: `Item ${index + 1}`,
+    ...item,
+  }));
+
+  const keys = Array.from(new Set(formattedData.flatMap(item =>
+    Object.keys(item).filter(key => typeof item[key] === 'number')
+  )));
+
+  const indexBy = 'category';
 
   return (
     <ResponsiveBar
-      data={data}
+      data={formattedData}
       keys={keys}
       indexBy={indexBy}
       margin={{ top: 50, right: 50, bottom: 50, left: 60 }}
@@ -23,7 +30,7 @@ const ChartComponent = ({ data }) => {
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: indexBy || '',
+        legend: 'category',
         legendPosition: 'middle',
         legendOffset: 32,
       }}

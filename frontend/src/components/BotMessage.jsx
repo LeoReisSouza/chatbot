@@ -1,20 +1,22 @@
 import React from 'react';
 import { Box, Typography, Avatar } from '@mui/material';
+import ChartComponent from 'components/Chart';
+
 const botAvatarUrl = '/path/to/bot-avatar.png';
 
-const BotMessage = ({ message }) => {
+const BotMessage = ({ message, isChart, chartData }) => {
   return (
-    <Box 
+    <Box
       sx={{
         display: 'flex',
         alignItems: 'flex-start',
         marginBottom: '1rem',
-        padding: '0 1rem',  
+        padding: '0 1rem',
       }}
     >
-      <Avatar 
-        src={botAvatarUrl} 
-        alt="Bot Avatar" 
+      <Avatar
+        src={botAvatarUrl}
+        alt="Bot Avatar"
         sx={{ width: 40, height: 40, marginRight: '0.5rem' }}
       />
       
@@ -28,7 +30,11 @@ const BotMessage = ({ message }) => {
           maxWidth: '70%',
         }}
       >
-        <Typography variant="body1">{message}</Typography>
+        {isChart ? (
+          <ChartComponent data={chartData} />
+        ) : (
+          <Typography variant="body1">{message}</Typography>
+        )}
       </Box>
     </Box>
   );
