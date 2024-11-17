@@ -23,7 +23,7 @@ const ChartComponent = ({ data }) => {
       padding={0.3}
       valueScale={{ type: 'linear' }}
       indexScale={{ type: 'band', round: true }}
-      colors={{ scheme: 'nivo' }}
+      colors={{ scheme: 'purpleRed_green' }}
       axisTop={null}
       axisRight={null}
       axisBottom={{
@@ -44,7 +44,7 @@ const ChartComponent = ({ data }) => {
       }}
       labelSkipWidth={12}
       labelSkipHeight={12}
-      labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+      labelTextColor="#ffffff"
       legends={[
         {
           dataFrom: 'keys',

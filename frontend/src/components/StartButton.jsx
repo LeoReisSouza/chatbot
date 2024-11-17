@@ -3,7 +3,7 @@ import { Button, styled } from '@mui/material';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 const CustomButton = styled(Button)({
-  backgroundColor: '#a11657',
+  backgroundColor: '#634B6A',
   color: '#fff',
   borderRadius: '25px',
   padding: '10px 30px',
@@ -15,7 +15,7 @@ const CustomButton = styled(Button)({
   width: '200px',
   height: '45px',
   '&:hover': {
-    backgroundColor: '#8c1349',
+    backgroundColor: '#815f8b',
   },
   '& .MuiButton-endIcon': {
     marginLeft: '0',

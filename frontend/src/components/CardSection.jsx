@@ -2,22 +2,36 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { animated } from '@react-spring/web';
 
+const phrases = [
+  "Gráficos dinâmicos para decisões em tempo real.",
+  "Sua análise de dados, sempre segura e em conformidade com a LGPD.",
+  "Consultas simplificadas, resultados precisos.",
+  "Transforme dados em insights com inteligência.",
+  "Automação que conecta você aos seus indicadores.",
+  "Uma solução prática para mentalidade data driven.",
+  "Descubra o poder dos seus dados de forma intuitiva.",
+  "Acesso imediato a informações estratégicas.",
+  "Mais autonomia, menos espera: dados ao seu alcance.",
+  "Simplifique consultas complexas",
+]
+
 const CardSection = ({ animationPropsTop, animationPropsMiddle, animationPropsBottom }) => {
-  const items = Array.from({ length: 12 }).map((_, index) => (
+  const items = phrases.map((phrase, index) => (
     <Box
       key={index}
       sx={{
         padding: '1rem',
         margin: '0.5rem',
-        border: '1px solid #ccc',
+        border: '1px solid #e2e8f0',
         borderRadius: '8px',
-        width: '150px',
+        // width: '150px',
         textAlign: 'center',
         whiteSpace: 'nowrap',
+        backgroundColor: "#e2e8f0"
       }}
     >
-      <Typography sx={{ color: '#fff' }}>
-        Lorem ipsum dolor.
+      <Typography>
+        {phrase}
       </Typography>
     </Box>
   ));

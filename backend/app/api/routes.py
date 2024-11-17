@@ -33,6 +33,7 @@ def chat_with_bot_endpoint(user_message: str = Body(..., embed=True)):
         chatbot = ChatBot(session_state=session_state)
         #retorno = chatbot.process_user_input(user_message)
         #print(retorno)
+        #return retorno
         return [{'avg_active_processes': 361.2119289340101523},{'avg_act': 361.2119289340101523},]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao processar a mensagem do chatbot: {e}")
