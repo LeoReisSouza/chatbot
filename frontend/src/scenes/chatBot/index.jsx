@@ -89,7 +89,7 @@ const ChatBot = () => {
     }
     console.log(messages)
     addMessage('user', sanitizedInput);
-    await callApi(messages[3]?.text, messages[5]?.text, messages[7]?.text, sanitizedInput);
+    await callApi(messages[2]?.text, messages[4]?.text, messages[6]?.text, sanitizedInput);
 
     setShowTextInput(false);
     setUserTextInput("");
