@@ -19,8 +19,8 @@ class ChatBot:
     """
     def __init__(self, session_state):
         self.client = AnthropicBedrock(
-            aws_access_key=os.getenv('AWS_ACCESS_KEY_ID'),
-            aws_secret_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+            aws_access_key=os.getenv('AWS_ACCESS_KEY_ID', ''),
+            aws_secret_key=os.getenv('AWS_SECRET_ACCESS_KEY', ''),
             aws_region=os.getenv('AWS_REGION', 'us-east-1')
         )
         self.anthropic = Anthropic(api_key=os.getenv("HAIKU_API_KEY"))
