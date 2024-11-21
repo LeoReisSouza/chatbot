@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import BotMessage from '../../components/BotMessage';
 import UserMessage from '../../components/UserMessage';
 import Footer from '../../components/Footer';
-import { Box, TextField, Button, useTheme } from '@mui/material';
+import LoadingModal from '../../components/LoadingModal';
+import ErrorModal from '../../components/ErrorModal';
+import { Box, TextField, Button } from '@mui/material';
 import DOMPurify from 'dompurify';
 import '../../style/chatbot.css';
 import Header from 'components/Header';
@@ -19,6 +21,7 @@ const ChatBot = () => {
   const [chartData, setChartData] = useState("");
   const [userTextInput, setUserTextInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [startClicked, setStartClicked] = useState(false);
 
   useEffect(() => {
@@ -198,6 +201,8 @@ const ChatBot = () => {
   };
 
   const callApi = async (dbname, schema, table, question) => {
+    setLoading(true);
+    setError(null);
     try {
       const formattedInput = `${dbname}, ${schema}, ${table}, ${question}`;
       const response = await fetch('http://127.0.0.1:8000/api/chat', {
@@ -215,6 +220,9 @@ const ChatBot = () => {
       await restartConversation();
     } catch (error) {
       console.error(error);
+      setError("Não foi possível processar sua solicitação. Por favor, atualize a página e tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -276,6 +284,13 @@ const ChatBot = () => {
         </Box>
       )}
 
+      {error && (<ErrorModal
+        open={!!error}
+        onClose={() => setError(null)} 
+        message={error}
+      />)}
+
+      <LoadingModal loading={loading} />
       <Footer />
     </>
   );
