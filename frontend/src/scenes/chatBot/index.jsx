@@ -227,9 +227,10 @@ const ChatBot = () => {
   };
 
   return (
-    <>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "none" }}>
       <Header />
-      <Box display="flex" flexDirection="column" height="75vh">
+
+      <Box display="flex" flexDirection="column" flex={1} overflow={"auto"}>
         <Box className="chat-content" justifyContent="flex-start" alignItems="center" mb={1}>
           {messages.map((msg, index) =>
             msg.sender === 'bot' ? (
@@ -292,7 +293,7 @@ const ChatBot = () => {
 
       <LoadingModal loading={loading} />
       <Footer />
-    </>
+    </div>
   );
 };
 
