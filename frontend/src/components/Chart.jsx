@@ -1,16 +1,39 @@
 import { ResponsiveBar } from '@nivo/bar';
+import { Box, Typography } from '@mui/material';
 
 const ChartComponent = ({ data }) => {
-  if (!data || data.length === 0) return null;
+  if (!Array.isArray(data) || data.length === 0) {
+    return (
+      <Box textAlign="center" mt={4}>
+        <Typography variant="h6" color="error">
+          Nenhum dado disponível para gerar o gráfico.
+        </Typography>
+      </Box>
+    );
+  }
 
   const formattedData = data.map((item, index) => ({
     category: `Item ${index + 1}`,
     ...item,
   }));
 
-  const keys = Array.from(new Set(formattedData.flatMap(item =>
-    Object.keys(item).filter(key => typeof item[key] === 'number')
-  )));
+  const keys = Array.from(
+    new Set(
+      formattedData.flatMap(item =>
+        Object.keys(item).filter(key => typeof item[key] === 'number')
+      )
+    )
+  );
+
+  if (keys.length === 0) {
+    return (
+      <Box textAlign="center" mt={4}>
+        <Typography variant="h6" color="error">
+          Os dados fornecidos não possuem valores numéricos suficientes para gerar o gráfico.
+        </Typography>
+      </Box>
+    );
+  }
 
   const indexBy = 'category';
 
@@ -23,7 +46,7 @@ const ChartComponent = ({ data }) => {
       padding={0.3}
       valueScale={{ type: 'linear' }}
       indexScale={{ type: 'band', round: true }}
-      colors={{ scheme: 'nivo' }}
+      colors={{ scheme: 'purpleRed_green' }}
       axisTop={null}
       axisRight={null}
       axisBottom={{
@@ -44,7 +67,7 @@ const ChartComponent = ({ data }) => {
       }}
       labelSkipWidth={12}
       labelSkipHeight={12}
-      labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+      labelTextColor="#ffffff"
       legends={[
         {
           dataFrom: 'keys',

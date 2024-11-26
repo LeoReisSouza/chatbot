@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@1,100&family=Rubik:wght@400;500;700&display=swap');
 
+body {
+    overflow-x: hidden;
+}
+
 html,
 body,
 #root,

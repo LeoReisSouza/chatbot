@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import BotMessage from '../../components/BotMessage';
 import UserMessage from '../../components/UserMessage';
 import Footer from '../../components/Footer';
+import LoadingModal from '../../components/LoadingModal';
+import ErrorModal from '../../components/ErrorModal';
 import { Box, TextField, Button } from '@mui/material';
 import DOMPurify from 'dompurify';
 import '../../style/chatbot.css';
@@ -19,6 +21,7 @@ const ChatBot = () => {
   const [chartData, setChartData] = useState("");
   const [userTextInput, setUserTextInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [startClicked, setStartClicked] = useState(false);
 
   useEffect(() => {
@@ -33,10 +36,18 @@ const ChatBot = () => {
     addMessage('user', optionValue);
     addMessage('bot', `Você selecionou: ${optionValue}`);
 
+    const lastMessage = messages[messages.length - 1]?.text?.split(": ")[1]
+
+    console.log("---------------------------------")
+    console.log(optionValue)
+    console.log(messages.length)
+    console.log(messages[messages.length - 1].text)
+    console.log("---------------------------------")
+    
     if (clickCount === 0) {
       await fetchSchemas(optionValue);
     } else if (clickCount === 1) {
-      await fetchTables(messages[1]?.text, optionValue);
+      await fetchTables(lastMessage, optionValue);
     } else if (clickCount === 2) {
       setShowTextInput(true);
     }
@@ -48,23 +59,27 @@ const ChatBot = () => {
   };
 
   const handleGoBack = async () => {
-    setMessages((prevMessages) => prevMessages.slice(0, -2));
-    
+    const newPreviewMessages = messages.slice(0, -2)
+
+    setMessages(newPreviewMessages);
     setClickCount((prevCount) => prevCount - 1);
-  
+
+    const lastMessage = newPreviewMessages[newPreviewMessages.length - 1]?.text?.split(": ")[1]
+    console.log(lastMessage)
+
     if (clickCount === 1) {
       await fetchDatabases(); 
     } else if (clickCount === 2) {
-      await fetchSchemas(messages[3]?.text); 
+      await fetchSchemas(lastMessage); 
     } else if (clickCount === 3) {
-      await fetchTables(messages[3]?.text, messages[5]?.text);
+      await fetchTables(lastMessage, messages[5]?.text);
     }
     console.log(clickCount)
     console.log(messages)
   };
 
   const handleStart = async () => {
-    addMessage('bot', "Vamos iniciar a nossa conversa?");
+    addMessage('bot', "Vamos iniciar a nossa conversa? Selecione uma opção.");
     setStartClicked(true);
     await fetchDatabases();
   };
@@ -77,7 +92,7 @@ const ChatBot = () => {
     }
     console.log(messages)
     addMessage('user', sanitizedInput);
-    await callApi(messages[3]?.text, messages[5]?.text, messages[7]?.text, sanitizedInput);
+    await callApi(messages[2]?.text, messages[4]?.text, messages[6]?.text, sanitizedInput);
 
     setShowTextInput(false);
     setUserTextInput("");
@@ -182,10 +197,12 @@ const ChatBot = () => {
     setStartClicked(false); 
 
     await fetchDatabases();
-    addMessage('bot', "Vamos começar novamente. Selecione uma base de dados.");
+    //addMessage('bot', "Vamos começar novamente. Selecione uma base de dados.");
   };
 
   const callApi = async (dbname, schema, table, question) => {
+    setLoading(true);
+    setError(null);
     try {
       const formattedInput = `${dbname}, ${schema}, ${table}, ${question}`;
       const response = await fetch('http://127.0.0.1:8000/api/chat', {
@@ -203,13 +220,17 @@ const ChatBot = () => {
       await restartConversation();
     } catch (error) {
       console.error(error);
+      setError("Não foi possível processar sua solicitação. Por favor, atualize a página e tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "none" }}>
       <Header />
-      <Box display="flex" flexDirection="column" height="75vh">
+
+      <Box display="flex" flexDirection="column" flex={1} overflow={"auto"}>
         <Box className="chat-content" justifyContent="flex-start" alignItems="center" mb={1}>
           {messages.map((msg, index) =>
             msg.sender === 'bot' ? (
@@ -226,26 +247,26 @@ const ChatBot = () => {
         </Box>
       </Box>
 
-        {showTextInput && (
-          <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
-            <TextField
-              label="Digite sua pergunta"
-              variant="outlined"
-              value={userTextInput}
-              onChange={(e) => setUserTextInput(e.target.value)}
-              fullWidth
-            />
-            <Button
-              onClick={handleTextInputSubmit}
-              variant="contained"
-              color="primary"
-              sx={{ marginLeft: '10px' }}
-              disabled={loading}
-            >
-              Enviar
-            </Button>
-          </Box>
-        )}
+      {showTextInput && (
+        <Box display="flex" justifyContent="center" alignItems="center" mt={2} padding={"0 32px"}>
+          <TextField
+            label="Digite sua pergunta"
+            variant="outlined"
+            value={userTextInput}
+            onChange={(e) => setUserTextInput(e.target.value)}
+            fullWidth
+          />
+          <Button
+            onClick={handleTextInputSubmit}
+            variant="contained"
+            color="primary"
+            sx={{ marginLeft: '10px' }}
+            disabled={loading}
+          >
+            Enviar
+          </Button>
+        </Box>
+      )}
 
       {(!showTextInput && chartData.length === 0) && (
         <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
@@ -264,8 +285,15 @@ const ChatBot = () => {
         </Box>
       )}
 
+      {error && (<ErrorModal
+        open={!!error}
+        onClose={() => setError(null)} 
+        message={error}
+      />)}
+
+      <LoadingModal loading={loading} />
       <Footer />
-    </>
+    </div>
   );
 };
 

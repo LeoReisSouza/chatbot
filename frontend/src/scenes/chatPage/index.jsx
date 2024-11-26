@@ -13,7 +13,7 @@ const ChatPage = () => {
   const animationPropsTop = useSpring({
     from: { x: 0 },
     to: { x: -1200 },
-    config: { duration: 30000 },
+    config: { duration: 60000 },
     reset: true,
     loop: true,
   });
@@ -21,7 +21,7 @@ const ChatPage = () => {
   const animationPropsMiddle = useSpring({
     from: { x: -1200 },
     to: { x: 0 },
-    config: { duration: 30000 },
+    config: { duration: 60000 },
     reset: true,
     loop: true,
   });
@@ -29,7 +29,7 @@ const ChatPage = () => {
   const animationPropsBottom = useSpring({
     from: { x: 0 },
     to: { x: -1200 },
-    config: { duration: 30000 },
+    config: { duration: 60000 },
     reset: true,
     loop: true,
   });
@@ -43,17 +43,23 @@ const ChatPage = () => {
       {showChatBotScreen ? (
         <ChatBot /> 
       ) : (
-        <Box>
+        <Box sx={{ height: "100%", display: "flex", flexDirection: 'column' }}>
           <Header />
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '2rem' }}>
+
+          <Box sx={{ padding: "4rem 0px", flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Title /> 
-            <CardSection
-              animationPropsTop={animationPropsTop}
-              animationPropsMiddle={animationPropsMiddle}
-              animationPropsBottom={animationPropsBottom}
-            />
+
+            <Box sx={{ flex: 1, display: "flex", alignItems: "center" }}>
+              <CardSection
+                animationPropsTop={animationPropsTop}
+                animationPropsMiddle={animationPropsMiddle}
+                animationPropsBottom={animationPropsBottom}
+              />
+            </Box>
+
             <StartButton onClick={handlePress} />
           </Box>
+
         </Box>
       )}
     </>

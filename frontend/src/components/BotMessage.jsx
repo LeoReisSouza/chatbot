@@ -1,10 +1,13 @@
 import React from 'react';
 import { Box, Typography, Avatar } from '@mui/material';
 import ChartComponent from 'components/Chart';
+import { useTheme } from '@emotion/react';
 
-const botAvatarUrl = '/path/to/bot-avatar.png';
+import bot from "../images/robo.png"
 
 const BotMessage = ({ message, isChart, chartData }) => {
+  const { palette } = useTheme();
+
   return (
     <Box
       sx={{
@@ -15,15 +18,14 @@ const BotMessage = ({ message, isChart, chartData }) => {
       }}
     >
       <Avatar
-        src={botAvatarUrl}
+        src={bot}
         alt="Bot Avatar"
         sx={{ width: 40, height: 40, marginRight: '0.5rem' }}
       />
       
       <Box
         sx={{
-          backgroundColor: '#5c496b',
-          color: '#fff',
+          backgroundColor: '#e2e8f0',
           borderRadius: '10px',
           borderTopLeftRadius: '0',
           padding: '1rem',

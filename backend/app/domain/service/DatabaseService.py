@@ -5,7 +5,7 @@ class Database:
     Classe para interagir com o banco de dados PostgreSQL e retornar informações de databases, schemas e tabelas.
     """
 
-    def __init__(self, host, port, user, password, name):
+    def __init__(self, host, port, user, password, name=None):
         """
         Inicializa a conexão com o banco de dados PostgreSQL.
 
@@ -46,7 +46,7 @@ class Database:
         """
         connection = self._connect()
         cursor = connection.cursor()
-        cursor.execute("SELECT datname FROM pg_database WHERE datistemplate = false;")
+        cursor.execute("SELECT datname FROM pg_database WHERE datistemplate = false and datname != 'postgres';")
         databases = [row[0] for row in cursor.fetchall()]
         cursor.close()
         connection.close()
@@ -62,7 +62,7 @@ class Database:
             cursor.execute("""
                 SELECT schema_name 
                 FROM information_schema.schemata
-                WHERE schema_name NOT IN ('pg_catalog', 'information_schema');
+                WHERE schema_name NOT IN ('pg_catalog', 'information_schema', 'pg_toast');
             """)
             schemas = [row[0] for row in cursor.fetchall()]
             print(f"Schemas encontrados: {schemas}")
@@ -83,10 +83,11 @@ class Database:
         Returns:
             list: Lista de nomes das tabelas.
         """
-        connection = self._connect()
+        connection = self._connect(db_name)
         cursor = connection.cursor()
         cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = %s;", (schema,))
         tables = [row[0] for row in cursor.fetchall()]
+        print(tables)
         cursor.close()
         connection.close()
         return tables
